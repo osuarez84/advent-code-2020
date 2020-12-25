@@ -142,7 +142,6 @@ def get_the_adjacent_values(row, col, seats_map):
             
         #print(f'Down right -> Row: {row+subtract_counter}, column: {col+subtract_counter} contains a {down_right}')
 
-    
     return  [upper_left, upper_center, upper_right, left, right, down_left, down_center, down_right]
     
 

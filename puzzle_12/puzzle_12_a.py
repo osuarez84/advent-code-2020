@@ -70,8 +70,6 @@ def update_the_variables(var_dict, order):
 
 
 
-    return var_dict
-
 
 def main():
     movement_orders = get_file('input.txt')

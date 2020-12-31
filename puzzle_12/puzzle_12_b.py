@@ -9,14 +9,13 @@ ship_var = {
     'west': 0
 }
 
-# Waypoint unit coordinates relative to the ship
-waypoint_var = {
-    'north': 1,
-    'south': 0,
-    'east': 10,
-    'west': 0
-}
 
+waypoint_var = {
+    'x': 10,
+    'y': 1,
+    'angle_relative_to_start': 0
+
+}
 
 
 # N, S, E, W -> move the waypoint coords
@@ -25,30 +24,52 @@ waypoint_var = {
 
 # L, R -> rotate the waypoint relative to the ship
 
+def update_waypoint(d, o_l, o_n):
+    print('Updating waypoint!')
+    if (o_l == 'N'):
+        d['y'] += int(o_n)
+    elif (o_l == 'S'):
+        d['y'] -= int(o_n)
+    elif (o_l == 'E'):
+        d['x'] += int(o_n)
+    elif (o_l == 'W'):
+        d['x'] -= int(o_n)
+    elif (o_l == 'L' or o_l == 'R'):
+        d['angle_relative_to_start'] = ((d['angle_relative_to_start'] - int(o_n)) % 360 )if o_l == 'L' else ((d['angle_relative_to_start'] + int(o_n)) % 360)
+        # Update the sign of the x , y coordinates
+        if (d['angle_relative_to_start'] == 0):
+            d['x'], d['y'] = abs(d['x']), abs(d['y'])
+        elif (d['angle_relative_to_start'] == 90):
+            d['x'], d['y'] = abs(d['y']), -d['x']
+        elif (d['angle_relative_to_start'] == 180):
+            d['x'], d['y'] = -d['x'], -d['y']
+        elif (d['angle_relative_to_start'] == 270):
+            d['x'], d['y'] = -d['y'], abs(d['x'])
+
+
+def update_ship(d_s, d_w, o_n):
+    # Refresh all the ship coords
+    print('Updating ship!')
+    if (d_w['y'] > 0):
+        d_s['north'] += abs(d_w['y'])*int(o_n)
+    else:
+        d_s['south'] += abs(d_w['y'])*int(o_n)
+
+    if (d_w['x'] > 0):
+        d_s['east'] += abs(d_w['x'])*int(o_n)
+    else:
+        d_s['west'] += abs(d_w['x'])*int(o_n)
+
 def update_the_variables(s_dict, w_dict, order):
     # Get letter and number
     order_letter = re.findall(r'[A-Z]+', order)[0]
     order_number = re.findall(r'[0-9]+', order)[0]
 
-    if (order_letter == 'N'):
-        w_dict['north'] += int(order_number)
-    elif (order_letter == 'S'):
-        w_dict['south'] += int(order_number)
-    elif (order_letter == 'E'):
-        w_dict['east'] += int(order_number)
-    elif (order_letter == 'W'):
-        w_dict['west'] += int(order_number)
-    elif (order_letter == 'F'):
-        # Refresh all the ship coords
-        s_dict['north'] += w_dict['north']*int(order_number)
-        s_dict['south'] += w_dict['south']*int(order_number)
-        s_dict['east'] += w_dict['east']*int(order_number)
-        s_dict['west'] += w_dict['west']*int(order_number)
-    elif (order_letter == 'L' or order_letter == 'R'):
-        # TODO
-        # adjust the waypoint coords relative to the ship
-        
-    return 
+    if (order_letter == 'N' or order_letter == 'S' or order_letter == 'E' 
+                or order_letter == 'W' or order_letter == 'L' or order_letter == 'R'):
+        update_waypoint(w_dict, order_letter, order_number)
+    else:
+        update_ship(s_dict, w_dict, order_number)
 
 
 
@@ -62,10 +83,20 @@ def get_file(file_name):
 
 
 def main():
-    movement_orders = get_file('input.txt')
+    movement_orders = get_file('input_test.txt')
 
     for order in movement_orders:
-        update_the_variables(dict_variables, order)
+        print(f'The order is {order}')
+        update_the_variables(ship_var, waypoint_var, order)
+        print(f'The updated values are for ship {ship_var}, for waypoint {waypoint_var}')
+
+    print(ship_var, waypoint_var)
+
+    manhattan_distance = abs(ship_var['north'] - ship_var['south']) + \
+            abs(ship_var['east'] - ship_var['west'])
+
+    print(f'Manhattan distance: {manhattan_distance}')
+
 
     return 'ok'
 
